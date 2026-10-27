@@ -79,5 +79,16 @@ function App() {
     </div>
   );
 }
+import { useEffect } from 'react';
+
+// wewnątrz komponentu App:
+useEffect(() => {
+  fetch('http://127.0.0.1:8000/api/games/')
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .catch(err => console.error("Błąd fetch:", err));
+}, []);
+
+
 
 export default App;
