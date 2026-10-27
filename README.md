@@ -36,6 +36,7 @@ git clone [https://github.com/TwojLogin/boardgames-db.git](https://github.com/Tw
 cd boardgames-db
 
 ### 2. Konfiguracja i uruchomienie Backendu (Django)
+```bash
 W pierwszym oknie terminala wykonaj polecenia:
 
 # Utworzenie i aktywacja środowiska wirtualnego
