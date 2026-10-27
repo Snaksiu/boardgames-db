@@ -1,122 +1,83 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { initialGames } from './data';
+import { GameCard } from './components/GameCard';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedGame, setSelectedGame] = useState(null);
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+  // Wyliczenie unikalnych kategorii z danych
+  const categories = [...new Set(initialGames.map(g => g.category))];
+
+  // Połączone filtrowanie (wyszukiwarka + kategoria)
+  const filteredGames = initialGames.filter(game => {
+    const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === "" || game.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Widok szczegółów (Zadanie 8)
+  if (selectedGame) {
+    return (
+      <div style={{ padding: '20px' }}>
+        <h2>{selectedGame.title}</h2>
+        <p><strong>Kategoria:</strong> {selectedGame.category}</p>
+        <p><strong>Cena:</strong> {selectedGame.price.toFixed(2)} PLN</p>
+        <p><strong>Data premiery:</strong> {selectedGame.release_date}</p>
+        <p><strong>Liczba graczy:</strong> {selectedGame.players_count}</p>
+        <button onClick={() => setSelectedGame(null)} style={{ padding: '10px 20px', cursor: 'pointer' }}>
+          Powrót do listy
         </button>
-      </section>
+      </div>
+    );
+  }
 
-      <div className="ticks"></div>
+  // Główny widok listy z filtrami
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1>Katalog Gier Planszowych</h1>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Wyszukiwarka tekstowa (Zadanie 6) */}
+      <div style={{ marginBottom: '15px' }}>
+        <input 
+          type="text" 
+          placeholder="Szukaj gry..." 
+          value={searchTerm} 
+          onChange={(e) => setSearchTerm(e.target.value)} 
+          style={{ padding: '8px', marginRight: '10px', width: '200px' }}
+        />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* Filtr rozwijany kategorii (Zadanie 7) */}
+        <select 
+          value={selectedCategory} 
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          style={{ padding: '8px' }}
+        >
+          <option value="">Wszystkie kategorie</option>
+          {categories.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Komunikat, gdy nic nie pasuje do filtrów */}
+      {filteredGames.length === 0 && (
+        <p style={{ color: 'red' }}>Brak gier spełniających kryteria wyszukiwania.</p>
+      )}
+
+      {/* Lista gier renderowana przez map() (Zadanie 4) */}
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+        {filteredGames.map(game => (
+          <GameCard 
+            key={game.id} 
+            game={game} 
+            onSelect={setSelectedGame} 
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
